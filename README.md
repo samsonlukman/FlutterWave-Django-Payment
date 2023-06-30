@@ -1,75 +1,70 @@
-# FlutterWave-Django-Payment
-Documentation for accepting multiple currencies and payments with Flutterwave with Django
+# Flutterwave Payment
 
-Overview
-This documentation provides a detailed explanation of the Flutterwave payment integration code provided. The code is written in HTML, JavaScript, and utilizes the Flutterwave API for processing payments.
+This is a web page that allows users to make payments using the Flutterwave payment gateway. It integrates with the Flutterwave API and provides functionality for currency selection, payment initiation, and OTP validation.
 
-HTML Structure
-The HTML structure of the code is as follows:
+## Prerequisites
 
-html
-Copy code
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flutterwave Payment</title>
-    <script src="https://checkout.flutterwave.com/v3.js"></script>
-    <script src="https://api.flutterwave.com/v3/otps"></script>
-</head>
-<body>
-</body>
-...
-</html>
-The <head> section includes the necessary meta tags and defines the title of the page. It also imports the Flutterwave JavaScript library using two <script> tags.
+To use this payment page, you need the following:
 
-Payment Form
-Within the HTML structure, there is a payment form represented by a <div> element with the class "container-fluid". This form allows users to select a currency and initiate a payment.
+- Web browser with JavaScript enabled
+- Internet connection
 
-html
-Copy code
+## Usage
+
+1. Include the required scripts in the `<head>` section of your HTML file:
+
+```html
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+<script src="https://api.flutterwave.com/v3/otps"></script>
+```
+
+2. Add the necessary HTML elements to your page:
+
+```html
 <div class="container-fluid">
     <div class="form-group">
         <label for="currencyDropdown">Choose Currency</label>
         <select id="currencyDropdown" class="form-control">
             <option value="" selected disabled>Select Currency</option>
-            {% for currency in flutterwaveCurrencies %}
-                <option value="{{ currency }}">{{ currency }}</option>
-            {% endfor %}
+            <!-- Currency list will be populated dynamically -->
         </select>
     </div>
-    
+
     <button type="button" class="btn btn-primary" onclick="makePayment()">Pay Now</button>
     <button onclick="updateFlutterwaveCurrency()" class="btn btn-primary">Apply Currency</button>
 </div>
-The form consists of a dropdown menu (<select>) where users can choose a currency. The available currency options are populated dynamically from the flutterwaveCurrencies variable. Two buttons are provided: "Pay Now" and "Apply Currency." The "Pay Now" button triggers the makePayment() function, while the "Apply Currency" button triggers the updateFlutterwaveCurrency() function.
+```
 
-JavaScript Functions
-The code includes several JavaScript functions that handle payment processing and currency conversion.
+3. Customize the JavaScript code according to your requirements. You can modify the following functions:
 
-makePayment()
-This function is called when the "Pay Now" button is clicked. It retrieves the selected currency from the dropdown menu, fetches the currency conversion rate, and initiates the Flutterwave payment checkout process.
+- `makePayment()`: This function is triggered when the "Pay Now" button is clicked. It retrieves the selected currency, fetches the currency conversion rate from the ExchangeRate API, calculates the converted amount, and initiates the Flutterwave payment using the FlutterwaveCheckout function.
 
-flutterOtp()
-This function is responsible for sending an OTP (One-Time Password) to the user's email or phone number. It makes an HTTP POST request to the Flutterwave API's /v3/otps endpoint to generate the OTP.
+- `flutterOtp()`: This function sends an OTP (One-Time Password) to the customer using the Flutterwave API. You may need to customize the OTP configuration and provide your own API credentials.
 
-validateOtp()
-This function validates the OTP entered by the user. It makes an HTTP POST request to the Flutterwave API's /v3/otps/:reference/validate endpoint with the OTP entered by the user.
+- `validateOtp()`: This function validates the OTP entered by the customer. Again, you may need to modify the OTP validation process and provide your own API credentials.
 
-updateFlutterwaveCurrency()
-This function is triggered when the "Apply Currency" button is clicked. It retrieves the selected currency from the dropdown menu, fetches the currency conversion rate, and updates the payment amount on the page accordingly.
+- `updateFlutterwaveCurrency()`: This function is triggered when the "Apply Currency" button is clicked. It fetches the currency conversion rate for the selected currency and updates the payment amount displayed on the page.
 
-Integration with Flutterwave APIs
-The code integrates with the Flutterwave APIs for payment processing and OTP generation/validation.
+4. Customize the API credentials and other parameters according to your Flutterwave account settings.
 
-Flutterwave Checkout
-The makePayment() function uses the FlutterwaveCheckout function from the Flutterwave JavaScript library to initiate the payment checkout process. It sets various parameters such as the public key, transaction reference, amount, currency, payment options, redirect URL, customer details, and customizations.
+5. Deploy the HTML file and open it in a web browser to use the Flutterwave payment functionality.
 
-Flutterwave OTP APIs
-The flutterOtp() and validateOtp() functions interact with the Flutterwave OTP APIs. flutterOtp() sends a request to generate an OTP, while validateOtp() sends a request to validate the OTP entered by the user.
+## Notes
 
-Additional Notes
-The code uses template variables (e.g., {{ listing.price.bid }}, {{ user.email }}, {{ user.username }}, {{ listing.id }}, {{ listing.currency }}) to populate dynamic values. These variables should be replaced with actual values from the application or backend.
-The code relies on external dependencies such as the Flutterwave JavaScript library and the ExchangeRate API. Make sure these dependencies are available and properly integrated into your project.
-Please note that this documentation provides an overview of the code structure and functionality. To fully integrate the code into your project, you may need to make additional modifications and handle backend integration for processing payments and validating OTPs.
+- The currency options in the dropdown list are populated dynamically based on the `flutterwaveCurrencies` variable passed from the database. Make sure to replace this variable with the actual currency list.
+
+- The currency conversion rates are fetched from the ExchangeRate API. You may need to sign up for an API key and replace the API URL in the code with your own key.
+
+- The `public_key` in the FlutterwaveCheckout function should be replaced with your actual Flutterwave public key.
+
+- The redirect URL in the FlutterwaveCheckout function should be updated to the appropriate URL in your application where the payment response will be handled.
+
+- The `meta` object in the FlutterwaveCheckout function contains additional metadata related to the payment. Replace the sample values with your own metadata.
+
+- The `customer` object in the FlutterwaveCheckout function contains customer information. You should replace the sample values with actual customer details.
+
+- The `customizations` object in the FlutterwaveCheckout function allows customization of the payment page. Modify the `title`, `description`, and `logo` values to match your application branding.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
