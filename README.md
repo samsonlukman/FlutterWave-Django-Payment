@@ -78,3 +78,7 @@ Developers must obtain their Flutterwave public and secret keys, as well as an E
 ---
 
 By utilizing the **FlutterWave-Django-Payment** project, developers can seamlessly integrate payment functionalities into their websites for various use cases, enhancing user experience and enabling secure and convenient transactions.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
