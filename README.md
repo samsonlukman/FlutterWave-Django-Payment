@@ -1,70 +1,80 @@
-# Flutterwave Payment
+# FlutterWave-Django-Payment Documentation
 
-This is a web page that allows users to make payments using the Flutterwave payment gateway. It integrates with the Flutterwave API and provides functionality for currency selection, payment initiation, and OTP validation.
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Service MultiPayment](#service-multipayment)
+3. [Single Payment](#single-payment)
+4. [MultiPayment MultiCurrency](#multipayment-multicurrency)
+5. [Dependencies](#dependencies)
 
-## Prerequisites
+## 1. Introduction <a name="introduction"></a>
+The **FlutterWave-Django-Payment** project provides developers with a set of HTML-based payment forms that integrate with Flutterwave's payment gateway. These forms enable seamless and secure digital transactions, allowing developers to accept payments for various services, items, or products on their websites.
 
-To use this payment page, you need the following:
+The project includes three HTML payment forms, each designed to cater to specific use cases:
 
-- Web browser with JavaScript enabled
-- Internet connection
+1. **Service MultiPayment**: This form enables developers to set the cost of their services in one currency, while users can pay using any currency, thus overcoming digital payment restrictions.
 
-## Usage
+2. **Single Payment**: Designed for e-commerce websites, this form allows developers to list items in multiple currencies. Users can then pay for one item at a time using their preferred currency.
 
-1. Include the required scripts in the `<head>` section of your HTML file:
+3. **MultiPayment MultiCurrency**: This form is tailored for e-commerce websites that offer multiple items in various currencies. Users can select items and pay for them collectively using a card payment method.
 
-```html
-<script src="https://checkout.flutterwave.com/v3.js"></script>
-<script src="https://api.flutterwave.com/v3/otps"></script>
-```
+In this documentation, we will provide detailed explanations and usage instructions for each of these payment forms.
 
-2. Add the necessary HTML elements to your page:
+## 2. Service MultiPayment <a name="service-multipayment"></a>
+**Purpose:** The **Service MultiPayment** form is designed to address scenarios where developers offer services with a fixed cost. This form enables developers to set the service cost in a single currency, while users can choose to pay for the service in any currency supported by Flutterwave.
 
-```html
-<div class="container-fluid">
-    <div class="form-group">
-        <label for="currencyDropdown">Choose Currency</label>
-        <select id="currencyDropdown" class="form-control">
-            <option value="" selected disabled>Select Currency</option>
-            <!-- Currency list will be populated dynamically -->
-        </select>
-    </div>
+**How to Use:**
 
-    <button type="button" class="btn btn-primary" onclick="makePayment()">Pay Now</button>
-    <button onclick="updateFlutterwaveCurrency()" class="btn btn-primary">Apply Currency</button>
-</div>
-```
+1. Embed the provided HTML code within your web application.
+2. Replace the placeholder values in the code:
+   - Replace `"YOUR_PUBLIC_KEY"` and `"YOUR_SECRET_KEY"` with your actual Flutterwave public and secret keys.
+   - Replace `"YOUR_KEY_HERE"` with your ExchangeRate API key.
+   - Adjust any other placeholders as needed to customize the form.
+3. When a user clicks the "Click to pay" button, a payment modal will appear.
+4. Users can select their preferred payment currency from the dropdown list.
+5. Click the "Apply Currency" button to update the payment amount in the selected currency.
+6. After applying the currency, users can click the "Pay Now" button to initiate the payment process.
+7. The user will be prompted to complete the payment using available payment options.
 
-3. Customize the JavaScript code according to your requirements. You can modify the following functions:
+## 3. Single Payment <a name="single-payment"></a>
+**Purpose:** The **Single Payment** form is suitable for e-commerce websites that offer individual items for sale in multiple currencies. Users can select an item, choose their preferred payment currency, and complete the payment for the selected item.
 
-- `makePayment()`: This function is triggered when the "Pay Now" button is clicked. It retrieves the selected currency, fetches the currency conversion rate from the ExchangeRate API, calculates the converted amount, and initiates the Flutterwave payment using the FlutterwaveCheckout function.
+**How to Use:**
 
-- `flutterOtp()`: This function sends an OTP (One-Time Password) to the customer using the Flutterwave API. You may need to customize the OTP configuration and provide your own API credentials.
+1. Integrate the provided HTML code into your e-commerce website.
+2. Replace the placeholder values in the code:
+   - Replace `"YOUR_PUBLIC_KEY"` and `"YOUR_SECRET_KEY"` with your actual Flutterwave public and secret keys.
+   - Replace `"YOUR_KEY_HERE"` with your ExchangeRate API key.
+   - Adjust any other placeholders to align with your website's structure and data.
+3. When a user clicks the "Click to pay" button, the payment modal will appear.
+4. Users can select the currency from the dropdown list and apply it to update the displayed payment amount.
+5. After applying the currency, users can click the "Pay Now" button to proceed to payment.
+6. Users will be directed to complete the payment process using the provided payment options.
 
-- `validateOtp()`: This function validates the OTP entered by the customer. Again, you may need to modify the OTP validation process and provide your own API credentials.
+## 4. MultiPayment MultiCurrency <a name="multipayment-multicurrency"></a>
+**Purpose:** The **MultiPayment MultiCurrency** form is tailored for e-commerce websites that offer multiple items for purchase, each listed in different currencies. Users can add items to their cart, choose their preferred payment currency, and complete a collective payment for the selected items.
 
-- `updateFlutterwaveCurrency()`: This function is triggered when the "Apply Currency" button is clicked. It fetches the currency conversion rate for the selected currency and updates the payment amount displayed on the page.
+**How to Use:**
 
-4. Customize the API credentials and other parameters according to your Flutterwave account settings.
+1. Embed the provided HTML code into your e-commerce website.
+2. Replace the placeholder values in the code:
+   - Replace `"YOUR_PUBLIC_KEY"` and `"YOUR_SECRET_KEY"` with your actual Flutterwave public and secret keys.
+   - Replace `"YOUR_KEY_HERE"` with your ExchangeRate API key.
+   - Adjust any other placeholders as necessary to integrate with your website's functionality.
+3. Users can browse items and select their preferred payment currency from the dropdown list.
+4. Click the "Apply Currency" button to update the cart's total amounts in the selected currency.
+5. Users can then add items to the cart and see the total amounts for different currencies.
+6. After selecting items and currency, users can click the "Pay Now" button to initiate payment.
+7. Users will be directed to complete the payment using available options, providing a seamless checkout experience.
 
-5. Deploy the HTML file and open it in a web browser to use the Flutterwave payment functionality.
+## 5. Dependencies <a name="dependencies"></a>
+The **FlutterWave-Django-Payment** project requires the following dependencies:
 
-## Notes
+- [Flutterwave Checkout Library](https://checkout.flutterwave.com/v3.js): Used to handle the payment checkout process.
+- [Flutterwave OTP Library](https://api.flutterwave.com/v3/otps): Used to handle OTP (One-Time Password) validation for added security.
 
-- The currency options in the dropdown list are populated dynamically based on the `flutterwaveCurrencies` variable passed from the database. Make sure to replace this variable with the actual currency list.
+Developers must obtain their Flutterwave public and secret keys, as well as an ExchangeRate API key, to successfully integrate these forms into their websites.
 
-- The currency conversion rates are fetched from the ExchangeRate API. You may need to sign up for an API key and replace the API URL in the code with your own key.
+---
 
-- The `public_key` in the FlutterwaveCheckout function should be replaced with your actual Flutterwave public key.
-
-- The redirect URL in the FlutterwaveCheckout function should be updated to the appropriate URL in your application where the payment response will be handled.
-
-- The `meta` object in the FlutterwaveCheckout function contains additional metadata related to the payment. Replace the sample values with your own metadata.
-
-- The `customer` object in the FlutterwaveCheckout function contains customer information. You should replace the sample values with actual customer details.
-
-- The `customizations` object in the FlutterwaveCheckout function allows customization of the payment page. Modify the `title`, `description`, and `logo` values to match your application branding.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+By utilizing the **FlutterWave-Django-Payment** project, developers can seamlessly integrate payment functionalities into their websites for various use cases, enhancing user experience and enabling secure and convenient transactions.

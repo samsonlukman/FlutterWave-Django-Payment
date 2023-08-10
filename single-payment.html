@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINGLE ITEM PAYMENT IN MULTIPLE CURRENCIES ON A WEBSITE WITH ITEMS IN MULTIPLE CURRENCIES</title>
+    <!-- Include the Flutterwave checkout library -->
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <!-- Include the Flutterwave OTP library -->
+    <script src="https://api.flutterwave.com/v3/otps"></script>
+</head>
+<body>
+    <!-- The body content goes here -->
+
+</body>
+
+<!-- Make sure the container div is within the body -->
+<div class="container-fluid">
+    <!-- Form group for selecting currency -->
+    <div class="form-group">
+        <label for="currencyDropdown">Choose Currency</label>
+        <!-- Dropdown for selecting currency -->
+        <select id="currencyDropdown" class="form-control">
+            <option value="" selected disabled>Select Currency</option>
+            <!-- Loop through available currencies -->
+            {% for currency in flutterwaveCurrencies %}
+                <option value="{{ currency }}">{{ currency }}</option> <!-- Currency list passed from database -->
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Button to initiate payment -->
+    <button type="button" class="btn btn-primary" onclick="makePayment()">Pay Now</button>
+    <!-- Button to apply selected currency -->
+    <button onclick="updateFlutterwaveCurrency()" class="btn btn-primary">Apply Currency</button>
+</div>
+
+<!-- Display the updated payment amount -->
+<div id="payment-amount"></div>
+
+<!-- JavaScript code -->
+<script>
+    let selectedCurrency; // Variable to store selected currency
+
+    // Function to initiate payment
+    function makePayment() {
+        const amount = "{{ listing.price }}";
+        const userEmail = "{{ user.email }}";
+        const userName = "{{ user.username }}";
+        const listing_id = "{{ listing.id }}";
+        const listing_currency = "{{ listing.currency }}";
+
+        // Get the selected currency from the dropdown
+        const currencyDropdown = document.getElementById("currencyDropdown");
+        selectedCurrency = currencyDropdown.value;
+
+        // Fetch the currency conversion rate from the ExchangeRate API
+        fetch(`https://v6.exchangerate-api.com/v6/c39ce07e90bde74fa5a8ac76/latest/${listing_currency}`)
+            .then(response => response.json())
+            .then(data => {
+                // Calculate converted amount
+                const conversionRate = data.conversion_rates[selectedCurrency];
+                const convertedAmount = amount * conversionRate;
+
+                // Initialize Flutterwave checkout
+                FlutterwaveCheckout({
+                    public_key: "YOUR_PUBLIC_KEY", // Replace with your public key
+                    tx_ref: `market-${listing_id}-${Date.now()}`,
+                    amount: convertedAmount,
+                    currency: selectedCurrency,
+                    payment_options: "card, banktransfer, ussd",
+                    redirect_url: "YOUR_REDIRECT_URL", // Replace with your redirect URL
+                    meta: {
+                        consumer_id: "YOUR_CONSUMER_ID",
+                        consumer_mac: "92a3-912ba-1192a",
+                    },
+                    customer: {
+                        email: userEmail,
+                        phone_number: "08102909304",
+                        name: userName,
+                    },
+                    customizations: {
+                        title: "Flutter",
+                        description: "Payment for an awesome cruise",
+                        logo: "https://www.logolynx.com/images/logolynx/22/2239ca38f5505fbfce7e55bbc0604386.jpeg",
+                    },
+                });
+
+                flutterOtp(); // Call the OTP function
+            });
+    }
+
+    // Function to send OTP
+    function flutterOtp() {
+        const data = JSON.stringify({
+            length: 7,
+            customer: {
+                name: "Flutterwave Developers",
+                email: "developers@flutterwavego.com",
+                phone: "2348000000000",
+            },
+            sender: "Flutterwave Inc.",
+            send: true,
+            medium: ["email", "whatsapp"],
+            expiry: 5,
+        });
+
+        const url = "https://api.flutterwave.com/v3/otps";
+        const headers = {
+            Authorization: "YOUR_SECRET_KEY", // Replace with your secret key
+            "Content-Type": "application/json",
+        };
+
+        const config = {
+            method: "POST",
+            headers: headers,
+            body: data,
+        };
+
+        fetch(url, config)
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(JSON.stringify(data));
+                validateOtp(); // Call the OTP validation function
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    // Function to validate OTP
+    function validateOtp() {
+        const data = JSON.stringify({
+            otp: "481208", // Replace with the OTP received
+        });
+
+        const url = "https://api.flutterwave.com/v3/otps/:reference/validate";
+        const headers = {
+            Authorization: "YOUR_SECRET_KEY", // Replace with your secret key
+            "Content-Type": "application/json",
+        };
+
+        const config = {
+            method: "POST",
+            headers: headers,
+            body: data,
+        };
+
+        fetch(url, config)
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(JSON.stringify(data));
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    // Function to update displayed payment amount based on selected currency
+    function updateFlutterwaveCurrency() {
+        const amount = "{{ listing.price }}";
+        const listing_currency = "{{ listing.currency }}";
+
+        // Fetch the currency conversion rate from the ExchangeRate API
+        fetch(`https://v6.exchangerate-api.com/v6/c39ce07e90bde74fa5a8ac76/latest/${listing_currency}`)
+            .then(response => response.json())
+            .then(data => {
+                // Calculate converted amount
+                const conversionRate = data.conversion_rates[selectedCurrency];
+                const convertedAmount = amount * conversionRate;
+
+                document.getElementById("payment-amount").innerHTML = `Amount: ${selectedCurrency} ${convertedAmount.toFixed(2)}`;
+            });
+    }
+</script>
+</html>

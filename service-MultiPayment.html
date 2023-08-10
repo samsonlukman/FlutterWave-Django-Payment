@@ -3,75 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flutterwave Payment</title>
+    <title>Payment Form</title>
+    <!-- Include the Flutterwave checkout library -->
     <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <!-- Include the Flutterwave OTP library -->
     <script src="https://api.flutterwave.com/v3/otps"></script>
 </head>
 <body>
-    
-</body>
+    <button type="button" class="btn btn-primary" onclick="openPaymentModal()">Click to pay</button>
+   
 
-
-
-<div class="container-fluid">
-            <div class="form-group">
-                <label for="currencyDropdown">Choose Currency</label>
-                <select id="currencyDropdown" class="form-control">
-                    <option value="" selected disabled>Select Currency</option>
-                    {% for currency in flutterwaveCurrencies %}
-                        <option value="{{ currency }}">{{ currency }}</option> #Currency list passed from database #
-                    {% endfor %}
-                </select>
+    <div id="paymentModal" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <button type="button" class="close" onclick="closePaymentModal()">&times;</button>
+                <div class="container-fluid">
+                    <div class="form-group">
+                        <p style="background-color: red;">Select the currency you are paying in, then, click on apply currency, then Pay Now</p>
+                        <label for="currencyDropdown">Choose Currency</label>
+                        <select id="currencyDropdown" class="form-control" required>
+                            <option value="" selected disabled>Select Currency</option>
+                            <!-- Loop through available currencies -->
+                            {% for currency in flutterwaveCurrencies %}
+                                <option value="{{ currency }}">{{ currency }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <button onclick="updateFlutterwaveCurrency()" class="btn btn-primary">Apply Currency</button>
+                    </div>
+                    <br>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="makePayment()">Pay Now</button>
             </div>
+        </div>
+    </div>
 
-            <button type="button" class="btn btn-primary" onclick="makePayment()">Pay Now</button>
-            <button onclick="updateFlutterwaveCurrency()" class="btn btn-primary">Apply Currency</button>
-        
-
-    
-
-           
+    <!-- JavaScript code -->
     <script>
         let selectedCurrency;
+        const public_key = "FLWPUBK-14205c4448a4144b9da051acd27fa595-X";
+        const secret_key = "FLWSECK-03aae103d0acb0a88f29b3ab57528572-189c67e3930vt-X";
+        const currencyDropdown = document.getElementById("currencyDropdown");
+        const money = "USD";
 
         function makePayment() {
-            const amount = "{{ listing.price.bid }}";
-            const userEmail = "{{ user.email }}";
-            const userName = "{{ user.username }}";
-            const listing_id = "{{ listing.id }}";
-            const listing_currency = "{{ listing.currency }}";
+            const userEmail = "Email";
+            const userName = "username";
+            const symbol = money;
+            const amount = 60;
             let otp;
-
-            const currencyDropdown = document.getElementById("currencyDropdown");
-            const selectedCurrency = currencyDropdown.value;
+            selectedCurrency = currencyDropdown.value;
 
             // Fetch the currency conversion rate from the ExchangeRate API
-/            fetch(`https://v6.exchangerate-api.com/v6/c39ce07e90bde74fa5a8ac76/latest/${listing_currency}`)
+            fetch(`https://v6.exchangerate-api.com/v6/"YOUR_KEY_HERE/latest/${symbol}`)
                 .then(response => response.json())
                 .then(data => {
                     // Get the conversion rate for the selected currency
                     const conversionRate = data.conversion_rates[selectedCurrency];
                     const convertedAmount = amount * conversionRate;
+                    const randomString = Math.random().toString(36).substring(2, 15);
+                    const timestamp = Date.now();
+                    const tx_ref = randomString;
 
                     FlutterwaveCheckout({
-                        public_key: "FLWPUBK-0a2440ea2edde8cc7f1f201e2984c3fa-X",
-                        tx_ref: `auction-${listing_id}-${Date.now()}`,
+                        public_key: public_key,
+                        tx_ref: tx_ref,
                         amount: convertedAmount,
                         currency: selectedCurrency,
                         payment_options: "card, banktransfer, ussd",
-                        redirect_url: "https://inetwork.pythonanywhere.com/auctions/pay/" + listing_id,
+                        redirect_url: "https://tinktechy.com/pay/" + tx_ref,
                         meta: {
                             consumer_id: "YOUR_CONSUMER_ID", // Replace "YOUR_CONSUMER_ID" with the actual value
                             consumer_mac: "92a3-912ba-1192a",
                         },
                         customer: {
                             email: userEmail,
-                            phone_number: "08102909304",
+                            phone_number: userPhone,
                             name: userName,
                         },
                         customizations: {
-                            title: "iNetwork",
-                            description: "Payment for an awesome cruise",
+                            title: "Tink Techy",
+                            description: "Payment for Python Class",
                             logo: "https://www.logolynx.com/images/logolynx/22/2239ca38f5505fbfce7e55bbc0604386.jpeg",
                         },
                     });
@@ -97,7 +110,7 @@
 
             const url = "https://api.flutterwave.com/v3/otps";
             const headers = {
-                Authorization: "FLWSECK-7b1efe08a6f6db8d561fed231b4ff33b-188e425fb86vt-X",
+                Authorization: secret_key,
                 "Content-Type": "application/json",
             };
 
@@ -124,7 +137,7 @@
 
             const url = "https://api.flutterwave.com/v3/otps/:reference/validate";
             const headers = {
-                Authorization: "FLWSECK-7b1efe08a6f6db8d561fed231b4ff33b-188e425fb86vt-X",
+                Authorization: secret_key,
                 "Content-Type": "application/json",
             };
 
@@ -146,20 +159,37 @@
 
         function updateFlutterwaveCurrency() {
             selectedCurrency = currencyDropdown.value;
-            const amount = "{{ listing.price.bid }}";
-            const listing_currency = "{{ listing.currency }}";
+            const amount = 60;
+            const listing_currency = selectedCurrency;
 
             // Fetch the currency conversion rate from the ExchangeRate API
-            fetch(`https://v6.exchangerate-api.com/v6/c39ce07e90bde74fa5a8ac76/latest/${listing_currency}`)
+            fetch(`https://v6.exchangerate-api.com/v6/"YOUR_KEY_HERE/latest/${listing_currency}`)
                 .then(response => response.json())
                 .then(data => {
                     // Get the conversion rate for the selected currency
                     const conversionRate = data.conversion_rates[selectedCurrency];
                     const convertedAmount = amount * conversionRate;
 
-                    document.getElementById("payment-amount").innerHTML = `Amount: ${selectedCurrency} ${convertedAmount.toFixed(2)}`;
+                    // Display the converted amount or perform other actions
+                    document.getElementById("converted-amount").innerText = `Amount: ${selectedCurrency} ${convertedAmount.toFixed(2)}`;
                 });
         }
+
+        function openPaymentModal() {
+            // Get the modal element
+            var modal = document.getElementById("paymentModal");
+
+            // Show the modal
+            modal.style.display = "block";
+        }
+
+        function closePaymentModal() {
+            // Get the modal element
+            var modal = document.getElementById("paymentModal");
+
+            // Hide the modal
+            modal.style.display = "none";
+        }
     </script>
-</div>
+</body>
 </html>
